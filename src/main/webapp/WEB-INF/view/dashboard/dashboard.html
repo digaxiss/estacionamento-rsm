@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Maioria</title>
+    <link rel="stylesheet" href="dashboard.css" />
+
+    <!-- HEADER-NAV: Inclusão do Font Awesome para os ícones do header -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+
+    <!-- REMOVER esta linha, já que agora carregamos o script dinamicamente: -->
+    <!-- <script src="../header-nav/header-nav.js"></script> -->
+  </head>
+  <body>
+    <!-- HEADER-NAV: Container onde o header será carregado dinamicamente -->
+    <div id="header-nav-container"></div>
+
+   
+    <main>
+      <!-- Resumo financeiro (movido para o topo) -->
+      <div class="card">
+        <h2>Resumo Financeiro</h2>
+        <div class="financial-summary">
+          <div class="summary-item">
+            <span class="summary-label">Total Semana:</span>
+            <span class="summary-value">R$ 6.750,00</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Mês:</span>
+            <span class="summary-value">R$ 23.500,00</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Ticket Médio:</span>
+            <span class="summary-value">R$ 28,50</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid layout para estatísticas (movido para depois do resumo) -->
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <h3>Vagas Disponíveis</h3>
+          <div class="value">18</div>
+        </div>
+        <div class="stat-card">
+          <h3>Vagas Ocupadas</h3>
+          <div class="value">12</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total de Vagas</h3>
+          <div class="value">30</div>
+        </div>
+        <div class="stat-card">
+          <h3>Faturamento Hoje</h3>
+          <div class="value">R$ 1.250,00</div>
+        </div>
+      </div>
+
+      <!-- Grid de duas colunas para os cards principais -->
+      <div class="dashboard-grid">
+        <!-- Veículos estacionados -->
+        <div class="card">
+          <h2>Veículos Estacionados</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Placa</th>
+                <th>Entrada</th>
+                <th>Tempo</th>
+                <th>Valor Atual</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ABC-1234</td>
+                <td>08:30</td>
+                <td>2h 15min</td>
+                <td>R$ 34,00</td>
+              </tr>
+              <tr>
+                <td>XYZ-5678</td>
+                <td>09:15</td>
+                <td>1h 30min</td>
+                <td>R$ 25,00</td>
+              </tr>
+              <tr>
+                <td>MNO-7890</td>
+                <td>10:20</td>
+                <td>25min</td>
+                <td>R$ 25,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Últimas movimentações -->
+        <div class="card">
+          <h2>Últimas Movimentações</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Placa</th>
+                <th>Tipo</th>
+                <th>Horário</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>FGH-3456</td>
+                <td><span class="status status-danger">Saída</span></td>
+                <td>11:45</td>
+                <td>R$ 34,00</td>
+              </tr>
+              <tr>
+                <td>JKL-1234</td>
+                <td><span class="status status-success">Entrada</span></td>
+                <td>11:00</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td>PQR-7890</td>
+                <td><span class="status status-danger">Saída</span></td>
+                <td>10:50</td>
+                <td>R$ 25,00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2023 Estacionamento - Todos os direitos reservados</p>
+    </footer>
+
+    <!-- HEADER-NAV: Script para carregar o header-nav com abordagem simplificada -->
+    <script>
+      // Método simplificado para carregar o header-nav
+      document.addEventListener('DOMContentLoaded', function () {
+        const headerContainer = document.getElementById('header-nav-container')
+
+        // Adicionamos uma mensagem de carregamento
+        headerContainer.innerHTML =
+          '<div style="padding: 10px; text-align: center; background-color: #f0f0f0;">Carregando menu...</div>'
+
+        // Lista de caminhos possíveis para tentar carregar
+        const possiblePaths = [
+          '../header-nav/header-nav.html',
+          '../../components/header-nav/header-nav.html',
+          '/components/header-nav/header-nav.html',
+        ]
+
+        // Tenta cada caminho até que um tenha sucesso
+        function tryLoadHeader(pathIndex) {
+          if (pathIndex >= possiblePaths.length) {
+            // Se todas as tentativas falharem, mostra erro
+            headerContainer.innerHTML = `
+              <div style="background-color: #f8d7da; color: #721c24; padding: 15px; text-align: center; border: 1px solid #f5c6cb;">
+                Erro ao carregar o menu. 
+                <a href="javascript:window.location.reload()" style="color: #0066cc;">Recarregar</a>
+                <br>
+                <small>Caminhos tentados: ${possiblePaths.join(', ')}</small>
+              </div>
+            `
+            return
+          }
+
+          const currentPath = possiblePaths[pathIndex]
+          console.log('Tentando carregar de:', currentPath)
+
+          // Tenta carregar o HTML diretamente
+          fetch(currentPath)
+            .then((response) => {
+              if (!response.ok)
+                throw new Error(`HTTP error! status: ${response.status}`)
+              return response.text()
+            })
+            .then((html) => {
+              // Insere o HTML no container
+              headerContainer.innerHTML = html
+              console.log('Header carregado com sucesso de:', currentPath)
+
+              // Marca o item 'dashboard' como ativo após carregar o HTML
+              setTimeout(() => {
+                const navLinks = document.querySelectorAll('.main-nav a')
+                navLinks.forEach((link) => {
+                  if (
+                    link.textContent.trim().toLowerCase().includes('dashboard')
+                  ) {
+                    link.classList.add('active')
+                  } else {
+                    link.classList.remove('active')
+                  }
+                })
+                console.log('Menu dashboard ativado')
+              }, 100)
+            })
+            .catch((error) => {
+              console.warn(`Falha ao carregar de ${currentPath}:`, error)
+              // Tenta o próximo caminho
+              tryLoadHeader(pathIndex + 1)
+            })
+        }
+
+        // Inicia a tentativa de carregamento com o primeiro caminho
+        tryLoadHeader(0)
+      })
+    </script>
+  </body>
+</html>

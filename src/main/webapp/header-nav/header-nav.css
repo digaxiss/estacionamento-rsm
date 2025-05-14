@@ -1,0 +1,194 @@
+/* Variáveis para cores e estilos */
+:root {
+  --primary-color: #40c4ff;
+  --primary-dark: #0094cc;
+  --text-color: #ffffff;
+  --light-text: #b0bec5;
+  --border-color: #424242;
+  --card-bg: #2c2c2c;
+  --transition: all 0.3s ease;
+  --border-radius: 5px;
+}
+
+/* Estilo para o header principal - completamente reformulado */
+.main-header {
+  background-color: #1a1a1a; /* Mais escuro conforme a imagem */
+  width: 100%;
+  padding: 0; /* Remove padding */
+  box-shadow: none;
+  height: 60px; /* Altura fixa como na imagem */
+  border-bottom: 1px solid #333; /* Linha sutil na parte de baixo */
+  display: flex; /* Faz o header usar flexbox para preencher toda a largura */
+  align-items: stretch; /* Garante que os elementos filhos preencham a altura */
+}
+
+/* Conteúdo do header */
+.header-content {
+  display: flex;
+  justify-content: flex-start; /* Alinha elementos à esquerda */
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0; /* Remove padding */
+}
+
+/* Estilo do logo */
+.logo {
+  display: flex;
+  align-items: center;
+  padding-left: 20px;
+  height: 100%;
+  background-color: #1a1a1a; /* Mesmo fundo do header */
+}
+
+.logo h1 {
+  color: var(--primary-color);
+  font-size: 1.1rem; /* Tamanho menor como na imagem */
+  margin: 0;
+  font-weight: 500; /* Menos espesso como na imagem */
+}
+
+/* Navegação principal - alinhada ao centro como na imagem */
+.main-nav {
+  display: flex;
+  justify-content: flex-start; /* Começa logo após o logo */
+  height: 100%;
+  margin-left: 30px; /* Espaçamento entre o logo e a navegação */
+  background-color: #1a1a1a; /* Mesmo fundo do header */
+}
+
+.main-nav ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+
+.main-nav ul li {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.main-nav ul li a {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 10px; /* Reduzido o padding horizontal de 15px para 10px */
+  text-decoration: none;
+  color: var(--light-text);
+  transition: var(--transition);
+  font-size: 0.9rem;
+  font-weight: 400;
+  border: none;
+}
+
+/* Adicionando espaçamento entre o ícone e o texto */
+.main-nav ul li a i {
+  margin-right: 10px; /* Aumentado de 8px para 10px conforme imagem de referência */
+  font-size: 1.1rem; /* Tamanho um pouco maior para os ícones */
+}
+
+.main-nav ul li a:hover {
+  color: var(--primary-color);
+  background-color: transparent;
+}
+
+.main-nav ul li a.active {
+  color: var(--primary-color);
+  background-color: #252525; /* Fundo levemente mais claro para o item ativo */
+}
+
+/* Informações do usuário - alinhado à direita como na imagem */
+.user-info {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-right: 20px;
+  background-color: #1a1a1a; /* Mesmo fundo do header */
+}
+
+.user-info-name {
+  display: flex;
+  align-items: center;
+}
+
+.user-info p {
+  display: inline;
+  margin-right: 5px;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.user-info span {
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.user-info button {
+  background-color: var(--primary-color);
+  color: #212121;
+  border: none;
+  border-radius: 3px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  margin-left: 15px;
+  cursor: pointer;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+  .header-content {
+    padding: 0.5rem 30px; /* Reduz o padding nas telas médias */
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .logo {
+    margin-bottom: 0.5rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .main-nav {
+    width: 100%;
+    order: 3;
+    margin-top: 0.5rem;
+  }
+
+  .user-info {
+    order: 2;
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0.5rem 15px; /* Reduz ainda mais o padding nas telas pequenas */
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .user-info {
+    margin-top: 0.75rem;
+    justify-content: center;
+  }
+
+  .main-nav ul {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .main-nav ul li a {
+    border-bottom: none; /* Removida a linha também no mobile */
+    text-align: center;
+  }
+
+  .main-nav ul li a.active {
+    border-bottom: none; /* Removida a linha do item ativo no mobile */
+    color: var(--primary-color); /* Mantida apenas a cor */
+  }
+}
