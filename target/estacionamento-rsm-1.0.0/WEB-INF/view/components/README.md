@@ -5,4 +5,3 @@ Este guia explica como implementar e usar o componente de navegação superior (
 ## Estrutura de Arquivos
 
 O componente se baseia na seguinte estrutura:
-
