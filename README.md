@@ -136,7 +136,7 @@ Funcionalidades planejadas para versões futuras:
 ## Equipe do Projeto
 ### Maria Clara - digaxiss
 ### Rafael Santana - Rafael-Santana08
-### Rafael Souto (ME) - RafaelxSouto
+### Rafael Souto - RafaelxSouto
 ---
 
 © 2025 RSM Estacionamento - Todos os direitos reservados
