@@ -155,6 +155,12 @@
           border-left: 4px solid #dc3545;
         }
 
+        .sem-usuarios {
+          text-align: center;
+          padding: 20px;
+          color: #aaa;
+        }
+
         /* Layout responsivo */
         @media (max-width: 768px) {
           .container {
@@ -188,41 +194,52 @@
           <h1>Gerenciar Usuários</h1>
 
           <!-- Exibe mensagens de sucesso ou erro se houver -->
-          <c:if test="${not empty mensagemSucesso}">
-            <div class="mensagem sucesso">${mensagemSucesso}</div>
+          <c:if test="${not empty sessionScope.mensagemSucesso}">
+            <div class="mensagem sucesso">${sessionScope.mensagemSucesso}</div>
+            <c:remove var="mensagemSucesso" scope="session" />
           </c:if>
 
-          <c:if test="${not empty mensagemErro}">
-            <div class="mensagem erro">${mensagemErro}</div>
+          <c:if test="${not empty sessionScope.mensagemErro}">
+            <div class="mensagem erro">${sessionScope.mensagemErro}</div>
+            <c:remove var="mensagemErro" scope="session" />
           </c:if>
 
           <a href="${pageContext.request.contextPath}/admin/usuario/cadastrar" class="btn btn-novo">Novo Usuário</a>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>Nível de Acesso</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <c:forEach items="${usuarios}" var="usuario">
-                <tr>
-                  <td>${usuario.nome}</td>
-                  <td>${usuario.email}</td>
-                  <td>${usuario.nivelAcesso}</td>
-                  <td class="acoes">
-                    <a href="${pageContext.request.contextPath}/admin/usuario/editar?id=${usuario.id}"
-                      class="btn btn-editar">Editar</a>
-                    <a href="#" onclick="confirmarExclusao(${usuario.id}, '${usuario.nome}')"
-                      class="btn btn-excluir">Excluir</a>
-                  </td>
-                </tr>
-              </c:forEach>
-            </tbody>
-          </table>
+          <c:choose>
+            <c:when test="${not empty usuarios}">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>Nível de Acesso</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <c:forEach items="${usuarios}" var="usuario">
+                    <tr>
+                      <td>${usuario.nome}</td>
+                      <td>${usuario.email}</td>
+                      <td>${usuario.nivelAcesso}</td>
+                      <td class="acoes">
+                        <a href="${pageContext.request.contextPath}/admin/usuario/editar?id=${usuario.id}"
+                          class="btn btn-editar">Editar</a>
+                        <a href="#" onclick="confirmarExclusao(${usuario.id}, '${usuario.nome}')"
+                          class="btn btn-excluir">Excluir</a>
+                      </td>
+                    </tr>
+                  </c:forEach>
+                </tbody>
+              </table>
+            </c:when>
+            <c:otherwise>
+              <div class="sem-usuarios">
+                <p>Nenhum usuário cadastrado no sistema.</p>
+              </div>
+            </c:otherwise>
+          </c:choose>
 
           <a href="${pageContext.request.contextPath}/admin" class="btn btn-voltar">Voltar</a>
         </div>

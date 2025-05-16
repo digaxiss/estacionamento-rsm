@@ -145,12 +145,14 @@
           <h1>Configurações do Sistema</h1>
 
           <!-- Exibe mensagens de sucesso ou erro se houver -->
-          <c:if test="${not empty mensagemSucesso}">
-            <div class="mensagem sucesso">${mensagemSucesso}</div>
+          <c:if test="${not empty sessionScope.mensagemSucesso}">
+            <div class="mensagem sucesso">${sessionScope.mensagemSucesso}</div>
+            <c:remove var="mensagemSucesso" scope="session" />
           </c:if>
 
-          <c:if test="${not empty mensagemErro}">
-            <div class="mensagem erro">${mensagemErro}</div>
+          <c:if test="${not empty sessionScope.mensagemErro}">
+            <div class="mensagem erro">${sessionScope.mensagemErro}</div>
+            <c:remove var="mensagemErro" scope="session" />
           </c:if>
 
           <form action="${pageContext.request.contextPath}/admin/configuracoes/salvar" method="post" id="configForm">
@@ -217,14 +219,6 @@
               totalVagas
             });
           });
-
-          // Verificar se há mensagem de sucesso e redirecionar após alguns segundos
-          const sucessoMsg = document.querySelector('.mensagem.sucesso');
-          if (sucessoMsg) {
-            setTimeout(function () {
-              window.location.href = '${pageContext.request.contextPath}/admin/configuracoes';
-            }, 3000); // Redireciona após 3 segundos
-          }
         });
       </script>
     </body>

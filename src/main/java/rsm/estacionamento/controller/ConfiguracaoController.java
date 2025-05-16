@@ -21,7 +21,8 @@ import rsm.estacionamento.util.ConexaoDB;
  * Servlet responsável pelas configurações do sistema (apenas para administrador)
  */
 @WebServlet(urlPatterns = {"/admin", "/admin/dashboard", "/admin/usuarios", "/admin/configuracoes", 
-                          "/admin/usuario/*", "/admin/configuracoes/*"})
+                          "/admin/usuario/*", "/admin/configuracoes/salvar", "/admin/usuario/salvar", 
+                          "/admin/usuario/cadastrar", "/admin/usuario/editar", "/admin/usuario/excluir"})
 public class ConfiguracaoController extends HttpServlet {
     
     /**
@@ -36,7 +37,13 @@ public class ConfiguracaoController extends HttpServlet {
         
         // Verifica se o usuário é administrador
         if (!verificarPermissao(request, response)) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            // Redireciona para página de acesso negado se não for admin mas estiver logado
+            HttpSession session = request.getSession(false);
+            if (session != null && session.getAttribute("usuarioLogado") != null) {
+                response.sendRedirect(request.getContextPath() + "/acesso-negado");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/login");
+            }
             return;
         }
         
@@ -58,10 +65,7 @@ public class ConfiguracaoController extends HttpServlet {
                 e.printStackTrace();
                 response.getWriter().println("Erro ao carregar a página dashboard: " + e.getMessage());
             }
-        }
-        
-        // Restante do código para outros paths...
-        if (path.equals("/admin/usuarios")) {
+        } else if (path.equals("/admin/usuarios")) {
             // Gerenciamento de usuários
             try {
                 List<Usuario> usuarios = listarUsuarios();
@@ -80,9 +84,8 @@ public class ConfiguracaoController extends HttpServlet {
                 double valorHoraAdicional = obterConfiguracao("valor_hora_adicional", 9.0);
                 int totalVagas = (int) obterConfiguracao("total_vagas", 30);
                 
-                request.setAttribute("valorPrimeiraHora", valorPrimeiraHora);
-                request.setAttribute("valorHoraAdicional", valorHoraAdicional);
-                request.setAttribute("totalVagas", totalVagas);
+                // Cria um objeto para passar à view
+                request.setAttribute("configuracoes", new Configuracoes(valorPrimeiraHora, valorHoraAdicional, totalVagas));
                 
                 request.getRequestDispatcher("/WEB-INF/view/admin/configuracoes.jsp").forward(request, response);
             } catch (SQLException e) {
@@ -90,19 +93,49 @@ public class ConfiguracaoController extends HttpServlet {
                 request.setAttribute("mensagemErro", "Erro ao carregar configurações.");
                 request.getRequestDispatcher("/WEB-INF/view/admin/dashboard.jsp").forward(request, response);
             }
-        } else if (path.equals("/admin/usuario/cadastrar") || path.equals("/admin/usuario/editar")) {
-            // Formulário de cadastro/edição de usuário
-            if (path.equals("/admin/usuario/editar") && request.getParameter("id") != null) {
-                try {
+        } else if (path.equals("/admin/usuario/cadastrar")) {
+            // Formulário de cadastro de usuário
+            request.getRequestDispatcher("/WEB-INF/view/admin/usuario_form.jsp").forward(request, response);
+        } else if (path.equals("/admin/usuario/editar")) {
+            // Formulário de edição de usuário
+            try {
+                if (request.getParameter("id") != null) {
                     int id = Integer.parseInt(request.getParameter("id"));
                     Usuario usuario = buscarUsuario(id);
-                    request.setAttribute("usuario", usuario);
-                } catch (Exception e) {
-                    System.err.println("Erro ao buscar usuário: " + e.getMessage());
-                    request.setAttribute("mensagemErro", "Erro ao buscar dados do usuário.");
+                    if (usuario != null) {
+                        request.setAttribute("usuario", usuario);
+                        request.getRequestDispatcher("/WEB-INF/view/admin/usuario_form.jsp").forward(request, response);
+                    } else {
+                        request.setAttribute("mensagemErro", "Usuário não encontrado.");
+                        response.sendRedirect(request.getContextPath() + "/admin/usuarios");
+                    }
+                } else {
+                    request.setAttribute("mensagemErro", "ID do usuário não informado.");
+                    response.sendRedirect(request.getContextPath() + "/admin/usuarios");
                 }
+            } catch (Exception e) {
+                System.err.println("Erro ao buscar usuário: " + e.getMessage());
+                request.setAttribute("mensagemErro", "Erro ao buscar dados do usuário.");
+                response.sendRedirect(request.getContextPath() + "/admin/usuarios");
             }
-            request.getRequestDispatcher("/WEB-INF/view/admin/usuario_form.jsp").forward(request, response);
+        } else if (path.equals("/admin/usuario/excluir")) {
+            // Excluir um usuário
+            try {
+                if (request.getParameter("id") != null) {
+                    int id = Integer.parseInt(request.getParameter("id"));
+                    boolean sucesso = excluirUsuario(id);
+                    if (sucesso) {
+                        request.getSession().setAttribute("mensagemSucesso", "Usuário excluído com sucesso!");
+                    } else {
+                        request.getSession().setAttribute("mensagemErro", "Erro ao excluir usuário.");
+                    }
+                }
+                response.sendRedirect(request.getContextPath() + "/admin/usuarios");
+            } catch (Exception e) {
+                System.err.println("Erro ao excluir usuário: " + e.getMessage());
+                request.getSession().setAttribute("mensagemErro", "Erro ao excluir usuário: " + e.getMessage());
+                response.sendRedirect(request.getContextPath() + "/admin/usuarios");
+            }
         } else {
             // Caminho inválido
             response.sendRedirect(request.getContextPath() + "/admin");
@@ -118,33 +151,57 @@ public class ConfiguracaoController extends HttpServlet {
         
         // Verifica se o usuário é administrador
         if (!verificarPermissao(request, response)) {
-            response.sendRedirect(request.getContextPath() + "/login");
+            response.sendRedirect(request.getContextPath() + "/acesso-negado");
             return;
         }
         
-        String path = request.getPathInfo();
+        String uri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        String path = uri.substring(contextPath.length());
         
-        if (path.equals("/configuracoes/salvar")) {
+        System.out.println("POST processado: " + path);
+        
+        if (path.equals("/admin/configuracoes/salvar")) {
             // Salva as configurações do sistema
             try {
                 double valorPrimeiraHora = Double.parseDouble(request.getParameter("valorPrimeiraHora"));
                 double valorHoraAdicional = Double.parseDouble(request.getParameter("valorHoraAdicional"));
                 int totalVagas = Integer.parseInt(request.getParameter("totalVagas"));
                 
+                // Validação básica
+                if (valorPrimeiraHora <= 0) {
+                    throw new IllegalArgumentException("O valor da primeira hora deve ser maior que zero.");
+                }
+                if (valorHoraAdicional < 0) {
+                    throw new IllegalArgumentException("O valor da hora adicional não pode ser negativo.");
+                }
+                if (totalVagas <= 0) {
+                    throw new IllegalArgumentException("O número de vagas deve ser maior que zero.");
+                }
+                
                 // Salva configurações no banco de dados
                 salvarConfiguracao("valor_primeira_hora", valorPrimeiraHora);
                 salvarConfiguracao("valor_hora_adicional", valorHoraAdicional);
                 salvarConfiguracao("total_vagas", totalVagas);
                 
-                request.setAttribute("mensagemSucesso", "Configurações salvas com sucesso!");
+                request.getSession().setAttribute("mensagemSucesso", "Configurações salvas com sucesso!");
+            } catch (SQLException e) {
+                System.err.println("Erro de banco de dados ao salvar configurações: " + e.getMessage());
+                request.getSession().setAttribute("mensagemErro", "Erro ao salvar configurações: " + e.getMessage());
+            } catch (NumberFormatException e) {
+                System.err.println("Erro de formato numérico: " + e.getMessage());
+                request.getSession().setAttribute("mensagemErro", "Valores inválidos nos campos numéricos.");
+            } catch (IllegalArgumentException e) {
+                System.err.println("Valor inválido: " + e.getMessage());
+                request.getSession().setAttribute("mensagemErro", e.getMessage());
             } catch (Exception e) {
                 System.err.println("Erro ao salvar configurações: " + e.getMessage());
-                request.setAttribute("mensagemErro", "Erro ao salvar configurações.");
+                request.getSession().setAttribute("mensagemErro", "Erro ao salvar configurações.");
             }
             
             response.sendRedirect(request.getContextPath() + "/admin/configuracoes");
             
-        } else if (path.equals("/usuario/salvar")) {
+        } else if (path.equals("/admin/usuario/salvar")) {
             // Salva dados de um usuário (novo ou existente)
             String idStr = request.getParameter("id");
             String nome = request.getParameter("nome");
@@ -152,37 +209,45 @@ public class ConfiguracaoController extends HttpServlet {
             String senha = request.getParameter("senha");
             String nivelAcesso = request.getParameter("nivelAcesso");
             
+            // Validação básica
+            if (nome == null || nome.trim().isEmpty()) {
+                request.getSession().setAttribute("mensagemErro", "O nome do usuário é obrigatório.");
+                response.sendRedirect(request.getContextPath() + "/admin/usuarios");
+                return;
+            }
+            if (email == null || email.trim().isEmpty()) {
+                request.getSession().setAttribute("mensagemErro", "O e-mail do usuário é obrigatório.");
+                response.sendRedirect(request.getContextPath() + "/admin/usuarios");
+                return;
+            }
+            if ((idStr == null || idStr.isEmpty()) && (senha == null || senha.trim().isEmpty())) {
+                request.getSession().setAttribute("mensagemErro", "A senha é obrigatória para novos usuários.");
+                response.sendRedirect(request.getContextPath() + "/admin/usuarios");
+                return;
+            }
+            if (nivelAcesso == null || nivelAcesso.trim().isEmpty()) {
+                request.getSession().setAttribute("mensagemErro", "O nível de acesso é obrigatório.");
+                response.sendRedirect(request.getContextPath() + "/admin/usuarios");
+                return;
+            }
+            
             try {
                 if (idStr == null || idStr.isEmpty()) {
                     // Novo usuário
                     cadastrarUsuario(nome, email, senha, nivelAcesso);
-                    request.setAttribute("mensagemSucesso", "Usuário cadastrado com sucesso!");
+                    request.getSession().setAttribute("mensagemSucesso", "Usuário cadastrado com sucesso!");
                 } else {
                     // Atualização de usuário existente
                     int id = Integer.parseInt(idStr);
                     atualizarUsuario(id, nome, email, senha, nivelAcesso);
-                    request.setAttribute("mensagemSucesso", "Usuário atualizado com sucesso!");
+                    request.getSession().setAttribute("mensagemSucesso", "Usuário atualizado com sucesso!");
                 }
+            } catch (SQLException e) {
+                System.err.println("Erro de banco de dados ao salvar usuário: " + e.getMessage());
+                request.getSession().setAttribute("mensagemErro", "Erro ao salvar dados do usuário: " + e.getMessage());
             } catch (Exception e) {
                 System.err.println("Erro ao salvar usuário: " + e.getMessage());
-                request.setAttribute("mensagemErro", "Erro ao salvar dados do usuário.");
-            }
-            
-            response.sendRedirect(request.getContextPath() + "/admin/usuarios");
-            
-        } else if (path.equals("/usuario/excluir")) {
-            // Exclui um usuário
-            String idStr = request.getParameter("id");
-            
-            try {
-                if (idStr != null && !idStr.isEmpty()) {
-                    int id = Integer.parseInt(idStr);
-                    excluirUsuario(id);
-                    request.setAttribute("mensagemSucesso", "Usuário excluído com sucesso!");
-                }
-            } catch (Exception e) {
-                System.err.println("Erro ao excluir usuário: " + e.getMessage());
-                request.setAttribute("mensagemErro", "Erro ao excluir usuário.");
+                request.getSession().setAttribute("mensagemErro", "Erro ao salvar dados do usuário.");
             }
             
             response.sendRedirect(request.getContextPath() + "/admin/usuarios");
@@ -369,14 +434,39 @@ public class ConfiguracaoController extends HttpServlet {
      * Exclui um usuário
      * @throws SQLException Em caso de erro no banco de dados
      */
-    private void excluirUsuario(int id) throws SQLException {
+    private boolean excluirUsuario(int id) throws SQLException {
         String sql = "DELETE FROM usuarios WHERE id = ?";
         
         try (Connection conn = ConexaoDB.obterConexao();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setInt(1, id);
-            stmt.executeUpdate();
+            return stmt.executeUpdate() > 0;
+        }
+    }
+    
+    // Classe interna para representar configurações
+    public static class Configuracoes {
+        private double valorPrimeiraHora;
+        private double valorHoraAdicional;
+        private int totalVagas;
+        
+        public Configuracoes(double valorPrimeiraHora, double valorHoraAdicional, int totalVagas) {
+            this.valorPrimeiraHora = valorPrimeiraHora;
+            this.valorHoraAdicional = valorHoraAdicional;
+            this.totalVagas = totalVagas;
+        }
+        
+        public double getValorPrimeiraHora() {
+            return valorPrimeiraHora;
+        }
+        
+        public double getValorHoraAdicional() {
+            return valorHoraAdicional;
+        }
+        
+        public int getTotalVagas() {
+            return totalVagas;
         }
     }
 }
