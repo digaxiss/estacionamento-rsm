@@ -133,10 +133,10 @@ Funcionalidades planejadas para versões futuras:
 - Relatórios avançados com gráficos
 - Integração com sistemas de pagamento eletrônico
 
-## Contato e Suporte
-
-Para suporte técnico ou dúvidas sobre o sistema, entre em contato com a equipe de desenvolvimento RSM através do e-mail suporte@rsm.com
-
+## Equipe do Projeto
+### Maria Clara - digaxiss
+### Rafael Santana - Rafael-Santana08
+### Rafael Souto (ME) - RafaelxSouto
 ---
 
 © 2025 RSM Estacionamento - Todos os direitos reservados
