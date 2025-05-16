@@ -131,7 +131,6 @@ public class Movimentacao implements Serializable {
     
     @Override
     public String toString() {
-        return "Movimentacao{" + "id=" + id + ", placa=" + placa + ", tipoVeiculo=" + tipoVeiculo + 
-               ", dataEntrada=" + dataEntrada + ", dataSaida=" + dataSaida + '}';
+        return "Movimentacao{" + "id=" + id + ", placa=" + placa + ", tipoVeiculo=" + tipoVeiculo + ", dataEntrada=" + dataEntrada + ", dataSaida=" + dataSaida + '}';
     }
 }

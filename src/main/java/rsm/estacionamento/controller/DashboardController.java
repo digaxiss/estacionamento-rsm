@@ -105,8 +105,8 @@ public class DashboardController extends HttpServlet {
         String sql = "SELECT valor FROM configuracoes WHERE chave = 'total_vagas'";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 return rs.getInt("valor");
@@ -123,8 +123,8 @@ public class DashboardController extends HttpServlet {
         String sql = "SELECT COUNT(*) AS ocupadas FROM veiculos_estacionados WHERE saida IS NULL";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 return rs.getInt("ocupadas");
@@ -138,12 +138,11 @@ public class DashboardController extends HttpServlet {
      * Obtém o faturamento do dia atual
      */
     private BigDecimal obterFaturamentoHoje() throws SQLException {
-        String sql = "SELECT COALESCE(SUM(valor_pago), 0) AS total FROM veiculos_estacionados " +
-                     "WHERE DATE(saida) = CURRENT_DATE";
+        String sql = "SELECT COALESCE(SUM(valor_pago), 0) AS total FROM veiculos_estacionados " + "WHERE DATE(saida) = CURRENT_DATE";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 return rs.getBigDecimal("total");
@@ -157,12 +156,11 @@ public class DashboardController extends HttpServlet {
      * Obtém o faturamento da semana atual
      */
     private BigDecimal obterFaturamentoSemana() throws SQLException {
-        String sql = "SELECT COALESCE(SUM(valor_pago), 0) AS total FROM veiculos_estacionados " +
-                     "WHERE saida >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)";
+        String sql = "SELECT COALESCE(SUM(valor_pago), 0) AS total FROM veiculos_estacionados " + "WHERE saida >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 return rs.getBigDecimal("total");
@@ -176,12 +174,11 @@ public class DashboardController extends HttpServlet {
      * Obtém o faturamento do mês atual
      */
     private BigDecimal obterFaturamentoMes() throws SQLException {
-        String sql = "SELECT COALESCE(SUM(valor_pago), 0) AS total FROM veiculos_estacionados " +
-                     "WHERE MONTH(saida) = MONTH(CURRENT_DATE) AND YEAR(saida) = YEAR(CURRENT_DATE)";
+        String sql = "SELECT COALESCE(SUM(valor_pago), 0) AS total FROM veiculos_estacionados " + "WHERE MONTH(saida) = MONTH(CURRENT_DATE) AND YEAR(saida) = YEAR(CURRENT_DATE)";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 return rs.getBigDecimal("total");
@@ -195,12 +192,11 @@ public class DashboardController extends HttpServlet {
      * Calcula o ticket médio (valor médio por veículo)
      */
     private BigDecimal calcularTicketMedio() throws SQLException {
-        String sql = "SELECT COALESCE(AVG(valor_pago), 0) AS media FROM veiculos_estacionados " +
-                     "WHERE saida IS NOT NULL AND saida >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)";
+        String sql = "SELECT COALESCE(AVG(valor_pago), 0) AS media FROM veiculos_estacionados " + "WHERE saida IS NOT NULL AND saida >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 return rs.getBigDecimal("media");
@@ -216,12 +212,11 @@ public class DashboardController extends HttpServlet {
     private List<Veiculo> obterVeiculosEstacionados() throws SQLException {
         List<Veiculo> veiculos = new ArrayList<>();
         
-        String sql = "SELECT id, placa, tipo_veiculo, entrada, observacoes FROM veiculos_estacionados " +
-                     "WHERE saida IS NULL ORDER BY entrada DESC LIMIT 10";
+        String sql = "SELECT id, placa, tipo_veiculo, entrada, observacoes FROM veiculos_estacionados " + "WHERE saida IS NULL ORDER BY entrada DESC LIMIT 10";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
                 Veiculo veiculo = new Veiculo();
@@ -284,13 +279,11 @@ public class DashboardController extends HttpServlet {
         List<Movimentacao> movimentacoes = new ArrayList<>();
         
         // SQL para obter as últimas movimentações, incluindo entradas e saídas
-        String sql = "SELECT id, placa, tipo_veiculo, entrada, saida, valor_pago, forma_pagamento " +
-                     "FROM veiculos_estacionados " +
-                     "ORDER BY COALESCE(saida, entrada) DESC LIMIT 10";
+        String sql = "SELECT id, placa, tipo_veiculo, entrada, saida, valor_pago, forma_pagamento " + "FROM veiculos_estacionados " + "ORDER BY COALESCE(saida, entrada) DESC LIMIT 10";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
                 Movimentacao mov = new Movimentacao();

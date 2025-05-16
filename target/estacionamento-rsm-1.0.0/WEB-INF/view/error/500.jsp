@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Erro no Sistema - Estacionamento 24 Horas</title>
+    <title>Erro no Sistema - Estacionamento RSM</title>
     <style>
       body {
         font-family: Arial, sans-serif;

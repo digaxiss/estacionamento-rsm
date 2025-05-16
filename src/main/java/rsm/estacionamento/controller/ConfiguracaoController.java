@@ -20,9 +20,7 @@ import rsm.estacionamento.util.ConexaoDB;
 /**
  * Servlet responsável pelas configurações do sistema (apenas para administrador)
  */
-@WebServlet(urlPatterns = {"/admin", "/admin/dashboard", "/admin/usuarios", "/admin/configuracoes", 
-                          "/admin/usuario/*", "/admin/configuracoes/salvar", "/admin/usuario/salvar", 
-                          "/admin/usuario/cadastrar", "/admin/usuario/editar", "/admin/usuario/excluir"})
+@WebServlet(urlPatterns = {"/admin", "/admin/dashboard", "/admin/usuarios", "/admin/configuracoes", "/admin/usuario/*", "/admin/configuracoes/salvar", "/admin/usuario/salvar", "/admin/usuario/cadastrar", "/admin/usuario/editar", "/admin/usuario/excluir"})
 public class ConfiguracaoController extends HttpServlet {
     
     /**
@@ -286,7 +284,7 @@ public class ConfiguracaoController extends HttpServlet {
         String sql = "SELECT valor FROM configuracoes WHERE chave = ?";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, chave);
             
@@ -307,11 +305,10 @@ public class ConfiguracaoController extends HttpServlet {
      * @throws SQLException Em caso de erro no banco de dados
      */
     private void salvarConfiguracao(String chave, double valor) throws SQLException {
-        String sql = "INSERT INTO configuracoes (chave, valor) VALUES (?, ?) " +
-                     "ON DUPLICATE KEY UPDATE valor = ?";
+        String sql = "INSERT INTO configuracoes (chave, valor) VALUES (?, ?) " + "ON DUPLICATE KEY UPDATE valor = ?";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, chave);
             stmt.setDouble(2, valor);
@@ -331,8 +328,8 @@ public class ConfiguracaoController extends HttpServlet {
         String sql = "SELECT id, nome, email, nivel_acesso FROM usuarios ORDER BY nome";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
                 Usuario usuario = new Usuario();
@@ -358,7 +355,7 @@ public class ConfiguracaoController extends HttpServlet {
         String sql = "SELECT id, nome, email, nivel_acesso FROM usuarios WHERE id = ?";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setInt(1, id);
             
@@ -385,7 +382,7 @@ public class ConfiguracaoController extends HttpServlet {
         String sql = "INSERT INTO usuarios (nome, email, senha, nivel_acesso) VALUES (?, ?, ?, ?)";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, nome);
             stmt.setString(2, email);
@@ -412,7 +409,7 @@ public class ConfiguracaoController extends HttpServlet {
         }
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, nome);
             stmt.setString(2, email);
@@ -438,7 +435,7 @@ public class ConfiguracaoController extends HttpServlet {
         String sql = "DELETE FROM usuarios WHERE id = ?";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setInt(1, id);
             return stmt.executeUpdate() > 0;

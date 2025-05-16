@@ -145,8 +145,8 @@ public class EntradaVeiculoController extends HttpServlet {
         int totalVagas = obterTotalVagas();
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 int vagasOcupadas = rs.getInt("ocupadas");
@@ -166,8 +166,8 @@ public class EntradaVeiculoController extends HttpServlet {
         String sql = "SELECT valor FROM configuracoes WHERE chave = 'total_vagas'";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 return rs.getInt("valor");
@@ -188,7 +188,7 @@ public class EntradaVeiculoController extends HttpServlet {
         String sql = "SELECT COUNT(*) AS total FROM veiculos_estacionados WHERE placa = ? AND saida IS NULL";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, placa);
             
@@ -214,7 +214,7 @@ public class EntradaVeiculoController extends HttpServlet {
         String sql = "INSERT INTO veiculos_estacionados (placa, tipo_veiculo, entrada, observacoes) VALUES (?, ?, NOW(), ?)";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, placa);
             stmt.setString(2, tipoVeiculo);

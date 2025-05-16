@@ -6,7 +6,7 @@
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${empty usuario ? 'Novo Usuário' : 'Editar Usuário'} - Estacionamento 24 Horas</title>
+            <title>${empty usuario ? 'Novo Usuário' : 'Editar Usuário'} - Estacionamento RSM</title>
             <style>
                 body {
                     font-family: Arial, sans-serif;

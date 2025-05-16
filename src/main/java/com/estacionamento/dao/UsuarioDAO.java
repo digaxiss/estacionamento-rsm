@@ -19,7 +19,7 @@ public class UsuarioDAO {
         String sql = "SELECT * FROM usuarios WHERE email = ?";
         
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, email);
             
@@ -47,8 +47,8 @@ public class UsuarioDAO {
         String sql = "SELECT * FROM usuarios ORDER BY nome";
         
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
                 Usuario usuario = new Usuario();
@@ -71,7 +71,7 @@ public class UsuarioDAO {
         String sql = "INSERT INTO usuarios (nome, email, senha, nivel_acesso) VALUES (?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, usuario.getNome());
             stmt.setString(2, usuario.getEmail());
@@ -89,7 +89,7 @@ public class UsuarioDAO {
         String sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, nivel_acesso = ? WHERE id = ?";
         
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, usuario.getNome());
             stmt.setString(2, usuario.getEmail());
@@ -109,7 +109,7 @@ public class UsuarioDAO {
         String sql = "DELETE FROM usuarios WHERE id = ?";
         
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setLong(1, id); // Usar setLong em vez de setInt
             
@@ -126,7 +126,7 @@ public class UsuarioDAO {
         Usuario usuario = null;
         
         try (Connection conn = DatabaseConfig.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setLong(1, id); // Usar setLong em vez de setInt para compatibilidade com Long
             

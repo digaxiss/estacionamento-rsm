@@ -27,7 +27,7 @@ public class MovimentacaoService {
             // Verificar se há vagas disponíveis
             String sqlVagas = "SELECT COUNT(*) FROM movimentacoes WHERE saida IS NULL";
             try (PreparedStatement stmtVagas = conn.prepareStatement(sqlVagas);
-                 ResultSet rs = stmtVagas.executeQuery()) {
+                ResultSet rs = stmtVagas.executeQuery()) {
                 
                 rs.next();
                 int ocupadas = rs.getInt(1);
@@ -35,7 +35,7 @@ public class MovimentacaoService {
                 // Consultar número total de vagas (da tabela de configurações)
                 String sqlTotal = "SELECT valor FROM configuracoes WHERE chave = 'total_vagas'";
                 try (PreparedStatement stmtTotal = conn.prepareStatement(sqlTotal);
-                     ResultSet rsTotal = stmtTotal.executeQuery()) {
+                    ResultSet rsTotal = stmtTotal.executeQuery()) {
                     
                     rsTotal.next();
                     int totalVagas = Integer.parseInt(rsTotal.getString("valor"));

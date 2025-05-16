@@ -81,13 +81,10 @@ public class RelatorioController extends HttpServlet {
         List<Movimentacao> movimentacoes = new ArrayList<>();
         
         // Filtro para buscar movimentações na data especificada
-        String sql = "SELECT id, placa, tipo_veiculo, entrada, saida, valor_pago, forma_pagamento, observacoes " +
-                     "FROM veiculos_estacionados " +
-                     "WHERE DATE(entrada) = ? " + 
-                     "ORDER BY entrada DESC";
+        String sql = "SELECT id, placa, tipo_veiculo, entrada, saida, valor_pago, forma_pagamento, observacoes " + "FROM veiculos_estacionados " + "WHERE DATE(entrada) = ? " + "ORDER BY entrada DESC";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, data);
             

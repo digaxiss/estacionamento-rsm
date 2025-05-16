@@ -131,11 +131,10 @@ public class SaidaVeiculoController extends HttpServlet {
      * @throws SQLException Em caso de erro no banco de dados
      */
     private Veiculo buscarVeiculo(String placa) throws SQLException {
-        String sql = "SELECT id, placa, tipo_veiculo, entrada, observacoes FROM veiculos_estacionados " +
-                     "WHERE placa = ? AND saida IS NULL";
+        String sql = "SELECT id, placa, tipo_veiculo, entrada, observacoes FROM veiculos_estacionados " + "WHERE placa = ? AND saida IS NULL";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, placa);
             
@@ -198,7 +197,7 @@ public class SaidaVeiculoController extends HttpServlet {
         String sql = "UPDATE veiculos_estacionados SET saida = NOW(), valor_pago = ?, forma_pagamento = ? WHERE id = ?";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setBigDecimal(1, valor);
             stmt.setString(2, formaPagamento);

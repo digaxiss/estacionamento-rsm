@@ -6,7 +6,7 @@
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Gerenciar Usuários - Estacionamento 24 Horas</title>
+      <title>Gerenciar Usuários - Estacionamento RSM</title>
       <style>
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

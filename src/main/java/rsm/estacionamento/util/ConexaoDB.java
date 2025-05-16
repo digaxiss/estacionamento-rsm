@@ -12,7 +12,7 @@ public class ConexaoDB {
     // Parâmetros de conexão com o banco de dados
     private static final String URL = "jdbc:mysql://localhost:3306/estacionamento_db";
     private static final String USUARIO = "root";
-    private static final String SENHA = "";  // Em produção, usar senha forte e não hardcoded
+    private static final String SENHA = "";
     
     /**
      * Inicializa o driver JDBC

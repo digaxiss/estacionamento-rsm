@@ -125,7 +125,7 @@ public class LoginController extends HttpServlet {
         String sql = "SELECT id, nome, email, nivel_acesso FROM usuarios WHERE email = ? AND senha = ?";
         
         try (Connection conn = ConexaoDB.obterConexao();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
             
             stmt.setString(1, email);
             stmt.setString(2, senha); // Em produção, usar hash da senha
