@@ -37,20 +37,31 @@
 
         .filtro {
           display: flex;
-          align-items: center;
-          gap: 10px;
+          flex-direction: column;
+          gap: 15px;
           margin-bottom: 20px;
+        }
+
+        .filtro-row {
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 10px;
         }
 
         .filtro label {
           font-size: 14px;
         }
 
-        .filtro input[type="date"] {
+        .filtro input[type="date"],
+        .filtro input[type="month"],
+        .filtro select {
           padding: 8px;
           border-radius: 5px;
           border: none;
           outline: none;
+          background-color: #343a40;
+          color: #fff;
         }
 
         .btn-filtrar,
@@ -75,6 +86,20 @@
           margin-top: -50px;
         }
 
+        .tipo-filtro {
+          display: flex;
+          gap: 10px;
+          margin-bottom: 10px;
+          align-items: center;
+        }
+
+        .tipo-filtro label {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          cursor: pointer;
+        }
+
         .resumo {
           display: flex;
           justify-content: center;
@@ -96,6 +121,13 @@
         .resumo-label {
           font-size: 14px;
           color: #bbb;
+        }
+
+        .periodo-info {
+          text-align: center;
+          font-size: 18px;
+          margin: 20px 0;
+          color: #30bced;
         }
 
         table {
@@ -158,7 +190,7 @@
         }
 
         @media (max-width: 768px) {
-          .filtro {
+          .filtro-row {
             flex-direction: column;
             align-items: flex-start;
           }
@@ -188,19 +220,50 @@
 
       <div class="container">
         <div class="content">
-          <h1>Relatório de Movimentação</h1>
+          <h1>Relatório de Faturamento</h1>
 
           <c:if test="${not empty mensagemErro}">
             <div class="mensagem erro">${mensagemErro}</div>
           </c:if>
 
           <form action="${pageContext.request.contextPath}/relatorio" method="get" class="filtro">
-            <label for="data">Data:</label>
-            <input type="date" id="data" name="data" value="${dataFiltro}" />
-            <button type="submit" class="btn-filtrar">Filtrar</button>
+            <div class="tipo-filtro">
+              <label for="tipoFiltro">Tipo de relatório:</label>
+              <label><input type="radio" name="tipoFiltro" value="diario" ${tipoFiltro=='diario' || empty tipoFiltro
+                  ? 'checked' : '' } onclick="alternarTipoFiltro()"> Diário</label>
+              <label><input type="radio" name="tipoFiltro" value="semanal" ${tipoFiltro=='semanal' ? 'checked' : '' }
+                  onclick="alternarTipoFiltro()"> Semanal</label>
+              <label><input type="radio" name="tipoFiltro" value="mensal" ${tipoFiltro=='mensal' ? 'checked' : '' }
+                  onclick="alternarTipoFiltro()"> Mensal</label>
+            </div>
+
+            <div class="filtro-row">
+              <div id="filtro-diario" class="filtro-option">
+                <label for="dataDiaria">Selecione a data:</label>
+                <input type="date" id="dataDiaria" name="dataDiaria" value="${dataDiaria}">
+              </div>
+
+              <div id="filtro-semanal" class="filtro-option" style="display: none;">
+                <label for="dataSemanal">Selecione o último dia da semana:</label>
+                <input type="date" id="dataSemanal" name="dataSemanal" value="${dataSemanal}">
+              </div>
+
+              <div id="filtro-mensal" class="filtro-option" style="display: none;">
+                <label for="dataMensal">Selecione o mês e ano:</label>
+                <input type="month" id="dataMensal" name="dataMensal" value="${dataMensal}">
+              </div>
+
+              <button type="submit" class="btn-filtrar">Filtrar</button>
+            </div>
           </form>
 
           <button onclick="window.print()" class="btn-imprimir">Imprimir Relatório</button>
+
+          <c:if test="${not empty periodoFormatado}">
+            <div class="periodo-info">
+              ${periodoFormatado}
+            </div>
+          </c:if>
 
           <div class="resumo">
             <div class="resumo-item">
@@ -215,7 +278,7 @@
 
           <c:choose>
             <c:when test="${empty movimentacoes}">
-              <div class="sem-registros">Nenhum registro encontrado para esta data.</div>
+              <div class="sem-registros">Nenhum registro encontrado para este período.</div>
             </c:when>
             <c:otherwise>
               <table>
@@ -257,6 +320,25 @@
           </c:choose>
         </div>
       </div>
+
+      <script>
+        function alternarTipoFiltro() {
+          const tipoDiario = document.getElementById('filtro-diario');
+          const tipoSemanal = document.getElementById('filtro-semanal');
+          const tipoMensal = document.getElementById('filtro-mensal');
+
+          const tipoFiltroSelecionado = document.querySelector('input[name="tipoFiltro"]:checked').value;
+
+          tipoDiario.style.display = tipoFiltroSelecionado === 'diario' ? 'block' : 'none';
+          tipoSemanal.style.display = tipoFiltroSelecionado === 'semanal' ? 'block' : 'none';
+          tipoMensal.style.display = tipoFiltroSelecionado === 'mensal' ? 'block' : 'none';
+        }
+
+        // Inicializar o estado correto dos filtros ao carregar a página
+        document.addEventListener('DOMContentLoaded', function () {
+          alternarTipoFiltro();
+        });
+      </script>
     </body>
 
     </html>
