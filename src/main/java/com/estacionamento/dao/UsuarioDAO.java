@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.estacionamento.model.Usuario;
+import com.estacionamento.util.DatabaseConfig;
+import org.mindrot.jbcrypt.BCrypt;   // ← importe o BCrypt
+
+import java.sql.*;
 
 public class UsuarioDAO {
 
@@ -66,43 +71,69 @@ public class UsuarioDAO {
         return usuarios;
     }
     
-    // Inserir um novo usuário
+    // Inserir um novo usuário (agora com hash de senha)
     public boolean inserir(Usuario usuario) {
         String sql = "INSERT INTO usuarios (nome, email, senha, nivel_acesso) VALUES (?, ?, ?, ?)";
-        
+
         try (Connection conn = DatabaseConfig.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            String senha = usuario.getSenha();
             
+            // Se a senha não começa com "$2a$" (prefixo padrão do BCrypt 2a),
+            // significa que ainda é texto plano e precisa gerar o hash.
+            if (senha == null) {
+                throw new IllegalArgumentException("Senha não pode ser nula");
+            }
+            if (!senha.startsWith("$2a$")) {
+                senha = BCrypt.hashpw(senha, BCrypt.gensalt());
+            }
+
             stmt.setString(1, usuario.getNome());
             stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
+            stmt.setString(3, senha);
             stmt.setString(4, usuario.getNivelAcesso());
-            
+
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao inserir usuário", e);
         }
     }
-    
-    // Atualizar um usuário existente
+
+    // ATUALIZAR UM USUÁRIO EXISTENTE (faz hash se ainda não tiver)
     public boolean atualizar(Usuario usuario) {
-        String sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, nivel_acesso = ? WHERE id = ?";
-        
-        try (Connection conn = DatabaseConfig.getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
-            stmt.setString(4, usuario.getNivelAcesso());
-            stmt.setLong(5, usuario.getId()); // Usar setLong em vez de setInt
-            
-            return stmt.executeUpdate() > 0;
-        } catch (SQLException ex) {
-            Logger.getLogger(UsuarioDAO.class.getName()).log(Level.SEVERE, "Erro ao atualizar usuário", ex);
-            return false;
+    String sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, nivel_acesso = ? WHERE id = ?";
+
+    try (Connection conn = DatabaseConfig.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        String senha = usuario.getSenha();
+        if (senha == null) {
+            throw new IllegalArgumentException("Senha não pode ser nula");
         }
+
+        // 🔴 NÃO criptografa mais a senha
+        stmt.setString(1, usuario.getNome());
+        stmt.setString(2, usuario.getEmail());
+        stmt.setString(3, senha); // usa como está, criptografada ou não
+        stmt.setString(4, usuario.getNivelAcesso());
+        stmt.setLong(5, usuario.getId());
+
+        return stmt.executeUpdate() > 0;
+    } catch (SQLException ex) {
+        Logger.getLogger(UsuarioDAO.class.getName())
+              .log(Level.SEVERE, "Erro ao atualizar usuário", ex);
+        return false;
     }
+}
+
+    // ... os outros métodos (buscarPorEmail, listarTodos, etc.) permanecem sem alteração ...
+
+
+
+    // ... login e busca continuam iguais, mas lembre-se:
+    // ao verificar login, use BCrypt.checkpw(plaintext, hashDoBanco)
+
     
     // Excluir um usuário
     public boolean excluir(Long id) {
