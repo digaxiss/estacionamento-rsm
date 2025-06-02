@@ -11,6 +11,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import org.mindrot.jbcrypt.BCrypt;
 
 import rsm.estacionamento.model.Usuario;
 import rsm.estacionamento.util.ConexaoDB;
@@ -121,27 +122,56 @@ public class LoginController extends HttpServlet {
      * @return Objeto Usuario se autenticado com sucesso, null caso contrário
      * @throws SQLException Em caso de erro no banco de dados
      */
-    private Usuario autenticar(String email, String senha) throws SQLException {
-        String sql = "SELECT id, nome, email, nivel_acesso FROM usuarios WHERE email = ? AND senha = ?";
+    private Usuario autenticar(String email, String senhaDigitada) throws SQLException {
+    String sql = "SELECT * FROM usuarios WHERE email = ?";
+    
+    try (Connection conn = ConexaoDB.obterConexao();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
         
-        try (Connection conn = ConexaoDB.obterConexao();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, email);
-            stmt.setString(2, senha); // Em produção, usar hash da senha
-            
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
+        stmt.setString(1, email);
+
+        try (ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                String senhaBanco = rs.getString("senha");
+                boolean autenticado = false;
+                boolean precisaAtualizarHash = false;
+
+                if (senhaBanco != null && senhaBanco.startsWith("$2a$")) {
+                    // Senha já está criptografada
+                    autenticado = BCrypt.checkpw(senhaDigitada, senhaBanco);
+                } else {
+                    // Senha em texto plano
+                    autenticado = senhaDigitada.equals(senhaBanco);
+                    if (autenticado) {
+                        precisaAtualizarHash = true;
+                    }
+                }
+
+                if (autenticado) {
+                    // Atualiza a senha para hash se necessário
+                    if (precisaAtualizarHash) {
+                        String novoHash = BCrypt.hashpw(senhaDigitada, BCrypt.gensalt());
+                        String updateSql = "UPDATE usuarios SET senha = ? WHERE id = ?";
+                        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                            updateStmt.setString(1, novoHash);
+                            updateStmt.setLong(2, rs.getLong("id"));
+                            updateStmt.executeUpdate();
+                        }
+                    }
+
+                    // Retorna usuário autenticado
                     Usuario usuario = new Usuario();
-                    usuario.setId(rs.getInt("id"));
+                    usuario.setId((int) rs.getLong("id"));
                     usuario.setNome(rs.getString("nome"));
                     usuario.setEmail(rs.getString("email"));
+                    usuario.setSenha(senhaBanco); // pode retornar o hash
                     usuario.setNivelAcesso(rs.getString("nivel_acesso"));
                     return usuario;
                 }
             }
         }
-        
-        return null;
     }
+
+    return null;
+}
 }
