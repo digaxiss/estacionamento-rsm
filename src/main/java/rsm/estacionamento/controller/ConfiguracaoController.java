@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.mindrot.jbcrypt.BCrypt;
 
 import rsm.estacionamento.model.Usuario;
 import rsm.estacionamento.util.ConexaoDB;
@@ -378,54 +379,54 @@ public class ConfiguracaoController extends HttpServlet {
      * Cadastra um novo usuário
      * @throws SQLException Em caso de erro no banco de dados
      */
-    private void cadastrarUsuario(String nome, String email, String senha, String nivelAcesso) throws SQLException {
-        String sql = "INSERT INTO usuarios (nome, email, senha, nivel_acesso) VALUES (?, ?, ?, ?)";
-        
-        try (Connection conn = ConexaoDB.obterConexao();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
-            stmt.setString(1, nome);
-            stmt.setString(2, email);
-            stmt.setString(3, senha); // Em produção, usar hash para senha
-            stmt.setString(4, nivelAcesso);
-            
-            stmt.executeUpdate();
-        }
+   // Ao cadastrar ou atualizar a senha de um usuário
+private void cadastrarUsuario(String nome, String email, String senhaPura, String nivelAcesso) throws SQLException {
+    // Gera o hash da senha antes de salvar
+    String senhaHash = BCrypt.hashpw(senhaPura, BCrypt.gensalt());
+
+    String sql = "INSERT INTO usuarios (nome, email, senha, nivel_acesso) VALUES (?, ?, ?, ?)";
+    try (Connection conn = ConexaoDB.obterConexao();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, nome);
+        stmt.setString(2, email);
+        stmt.setString(3, senhaHash); // Salva o hash
+        stmt.setString(4, nivelAcesso);
+        stmt.executeUpdate();
     }
+}
     
     /**
      * Atualiza os dados de um usuário existente
      * @throws SQLException Em caso de erro no banco de dados
      */
-    private void atualizarUsuario(int id, String nome, String email, String senha, String nivelAcesso) throws SQLException {
-        String sql;
-        
-        if (senha != null && !senha.trim().isEmpty()) {
-            // Se a senha foi informada, atualiza também
-            sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, nivel_acesso = ? WHERE id = ?";
-        } else {
-            // Se a senha não foi informada, mantém a atual
-            sql = "UPDATE usuarios SET nome = ?, email = ?, nivel_acesso = ? WHERE id = ?";
-        }
-        
+    private void atualizarUsuario(int id, String nome, String email, String senhaPura, String nivelAcesso) throws SQLException {
+    String sql;
+    if (senhaPura != null && !senhaPura.trim().isEmpty()) {
+        // Se a senha foi informada, gera o hash dela
+        String senhaHash = BCrypt.hashpw(senhaPura, BCrypt.gensalt());
+        sql = "UPDATE usuarios SET nome = ?, email = ?, senha = ?, nivel_acesso = ? WHERE id = ?";
         try (Connection conn = ConexaoDB.obterConexao();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, nome);
             stmt.setString(2, email);
-            
-            if (senha != null && !senha.trim().isEmpty()) {
-                stmt.setString(3, senha); // Em produção, usar hash para senha
-                stmt.setString(4, nivelAcesso);
-                stmt.setInt(5, id);
-            } else {
-                stmt.setString(3, nivelAcesso);
-                stmt.setInt(4, id);
-            }
-            
+            stmt.setString(3, senhaHash); // Salva o hash
+            stmt.setString(4, nivelAcesso);
+            stmt.setInt(5, id);
+            stmt.executeUpdate();
+        }
+    } else {
+        // Se a senha não foi informada, mantém a atual
+        sql = "UPDATE usuarios SET nome = ?, email = ?, nivel_acesso = ? WHERE id = ?";
+        try (Connection conn = ConexaoDB.obterConexao();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, nome);
+            stmt.setString(2, email);
+            stmt.setString(3, nivelAcesso);
+            stmt.setInt(4, id);
             stmt.executeUpdate();
         }
     }
+}
     
     /**
      * Exclui um usuário
