@@ -460,7 +460,7 @@ private void cadastrarUsuario(String nome, String email, String senhaPura, Strin
         }
         
         public double getValorHoraAdicional() {
-            return valorHoraAdicional;
+            return valorHoraAdicional
         }
         
         public int getTotalVagas() {
