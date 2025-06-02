@@ -1,344 +1,507 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-  <%@ taglib uri="jakarta.tags.core" prefix="c" %>
-    <!DOCTYPE html>
-    <html lang="pt-br">
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<%@ taglib uri="jakarta.tags.fmt" prefix="fmt" %>
+<!DOCTYPE html>
+<html lang="pt-br">
 
     <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Relatórios - Estacionamento RSM</title>
-      <style>
-        body {
-          font-family: 'Segoe UI', sans-serif;
-          margin: 0;
-          padding: 0;
-          background-color: #2a2b30;
-          color: #ffffff;
-        }
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Relatórios - Estacionamento RSM</title>
+        <style>
+            body {
+                font-family: 'Segoe UI', sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #2a2b30;
+                color: #ffffff;
+            }
 
-        h1 {
-          text-align: center;
-          font-size: 32px;
-          margin-top: 20px;
-        }
+            h1 {
+                text-align: center;
+                font-size: 32px;
+                margin-top: 20px;
+            }
 
-        .container {
-          max-width: 1000px;
-          margin: auto;
-          padding: 20px;
-        }
+            .container {
+                max-width: 1200px;
+                margin: auto;
+                padding: 20px;
+            }
 
-        .content {
-          background-color: #2a2b30;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 0 0 2px #00bfff;
-        }
+            .content {
+                background-color: #2a2b30;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 0 2px #00bfff;
+            }
 
-        .filtro {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
-          margin-bottom: 20px;
-        }
+            .filtros {
+                background-color: #3c3d42;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
 
-        .filtro-row {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
+            .filtro-row {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }
 
-        .filtro label {
-          font-size: 14px;
-        }
+            .filtro-group {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
 
-        .filtro input[type="date"],
-        .filtro input[type="month"],
-        .filtro select {
-          padding: 8px;
-          border-radius: 5px;
-          border: none;
-          outline: none;
-          background-color: #343a40;
-          color: #fff;
-        }
+            .filtro-group label {
+                font-size: 14px;
+                font-weight: bold;
+                min-width: 80px;
+            }
 
-        .btn-filtrar,
-        .btn-imprimir {
-          background-color: #30bced;
-          border: none;
-          padding: 10px 16px;
-          color: white;
-          font-weight: bold;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: 0.3s;
-        }
+            .filtro-group select,
+            .filtro-group input[type="date"] {
+                padding: 8px 12px;
+                border-radius: 5px;
+                border: 1px solid #555;
+                background-color: #2a2b30;
+                color: #ffffff;
+                outline: none;
+            }
 
-        .btn-filtrar:hover,
-        .btn-imprimir:hover {
-          background-color: #1aaad7;
-        }
+            .periodo-personalizado {
+                display: none;
+                align-items: center;
+                gap: 10px;
+                margin-top: 10px;
+                padding: 15px;
+                background-color: #2a2b30;
+                border-radius: 5px;
+                border: 1px solid #555;
+            }
 
-        .btn-imprimir {
-          float: right;
-          margin-top: -50px;
-        }
+            .btn-filtrar,
+            .btn-imprimir,
+            .btn-exportar {
+                background-color: #30bced;
+                border: none;
+                padding: 10px 16px;
+                color: white;
+                font-weight: bold;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: 0.3s;
+                margin-right: 10px;
+            }
 
-        .tipo-filtro {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 10px;
-          align-items: center;
-        }
+            .btn-filtrar:hover,
+            .btn-imprimir:hover,
+            .btn-exportar:hover {
+                background-color: #1aaad7;
+            }
 
-        .tipo-filtro label {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          cursor: pointer;
-        }
+            .btn-exportar {
+                background-color: #28a745;
+            }
 
-        .resumo {
-          display: flex;
-          justify-content: center;
-          gap: 60px;
-          margin-top: 40px;
-          margin-bottom: 20px;
-        }
+            .btn-exportar:hover {
+                background-color: #218838;
+            }
 
-        .resumo-item {
-          text-align: center;
-        }
+            .acoes {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
 
-        .resumo-valor {
-          font-size: 26px;
-          font-weight: bold;
-          color: #30bced;
-        }
+            .resumo-geral {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
 
-        .resumo-label {
-          font-size: 14px;
-          color: #bbb;
-        }
+            .resumo-card {
+                background-color: #3c3d42;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+                border-left: 4px solid #30bced;
+            }
 
-        .periodo-info {
-          text-align: center;
-          font-size: 18px;
-          margin: 20px 0;
-          color: #30bced;
-        }
+            .resumo-valor {
+                font-size: 28px;
+                font-weight: bold;
+                color: #30bced;
+                margin-bottom: 5px;
+            }
 
-        table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 20px;
-        }
+            .resumo-label {
+                font-size: 14px;
+                color: #bbb;
+                margin-bottom: 10px;
+            }
 
-        th,
-        td {
-          padding: 12px 15px;
-          text-align: center;
-          border-bottom: 1px solid #444;
-        }
+            .resumo-detalhe {
+                font-size: 12px;
+                color: #999;
+            }
 
-        th {
-          font-weight: bold;
-          color: #ffffff;
-        }
+            .periodo-info {
+                background-color: #3c3d42;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
 
-        tr:hover {
-          background-color: #3c3d42;
-        }
+            .periodo-info strong {
+                color: #30bced;
+            }
 
-        .sem-registros {
-          text-align: center;
-          padding: 30px;
-          color: #ccc;
-        }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+                background-color: #3c3d42;
+                border-radius: 8px;
+                overflow: hidden;
+            }
 
-        .status {
-          padding: 5px 10px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: bold;
-          display: inline-block;
-        }
+            th,
+            td {
+                padding: 12px 15px;
+                text-align: center;
+                border-bottom: 1px solid #555;
+            }
 
-        .completo {
-          background-color: #28a745;
-          color: white;
-        }
+            th {
+                background-color: #2a2b30;
+                font-weight: bold;
+                color: #ffffff;
+            }
 
-        .pendente {
-          background-color: #ffc107;
-          color: #000;
-        }
+            tr:hover {
+                background-color: #4a4b50;
+            }
 
-        .mensagem {
-          padding: 15px;
-          margin-bottom: 20px;
-          border-radius: 6px;
-          font-size: 15px;
-        }
+            .sem-registros {
+                text-align: center;
+                padding: 40px;
+                color: #ccc;
+                background-color: #3c3d42;
+                border-radius: 8px;
+            }
 
-        .erro {
-          background-color: rgba(220, 53, 69, 0.2);
-          color: #dc3545;
-          border-left: 4px solid #dc3545;
-        }
+            .status {
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: bold;
+                display: inline-block;
+            }
 
-        @media (max-width: 768px) {
-          .filtro-row {
-            flex-direction: column;
-            align-items: flex-start;
-          }
+            .completo {
+                background-color: #28a745;
+                color: white;
+            }
 
-          .btn-imprimir {
-            float: none;
-            align-self: flex-end;
-            margin: 10px 0;
-          }
+            .pendente {
+                background-color: #ffc107;
+                color: #000;
+            }
 
-          .resumo {
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-          }
+            .em-aberto {
+                background-color: #dc3545;
+                color: white;
+            }
 
-          table {
-            display: block;
-            overflow-x: auto;
-          }
-        }
-      </style>
+            .mensagem {
+                padding: 15px;
+                margin-bottom: 20px;
+                border-radius: 6px;
+                font-size: 15px;
+            }
+
+            .erro {
+                background-color: rgba(220, 53, 69, 0.2);
+                color: #dc3545;
+                border-left: 4px solid #dc3545;
+            }
+
+            .grafico-container {
+                background-color: #3c3d42;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+            }
+
+            .progress-bar {
+                width: 100%;
+                height: 20px;
+                background-color: #2a2b30;
+                border-radius: 10px;
+                overflow: hidden;
+                margin-top: 10px;
+            }
+
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #30bced, #1aaad7);
+                transition: width 0.3s ease;
+            }
+
+            @media print {
+                .filtros,
+                .acoes,
+                .btn-filtrar,
+                .btn-imprimir,
+                .btn-exportar {
+                    display: none !important;
+                }
+
+                body {
+                    background-color: white;
+                    color: black;
+                }
+
+                .content,
+                .resumo-card,
+                table {
+                    background-color: white;
+                    color: black;
+                    box-shadow: none;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .filtro-row {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                .resumo-geral {
+                    grid-template-columns: 1fr;
+                }
+
+                .acoes {
+                    flex-direction: column;
+                }
+
+                table {
+                    display: block;
+                    overflow-x: auto;
+                    white-space: nowrap;
+                }
+            }
+        </style>
     </head>
 
     <body>
-      <jsp:include page="components/header-nav.jsp" />
+        <jsp:include page="components/header-nav.jsp" />
 
-      <div class="container">
-        <div class="content">
-          <h1>Relatório de Faturamento</h1>
+        <div class="container">
+            <div class="content">
+                <h1>Relatório de Movimentação</h1>
 
-          <c:if test="${not empty mensagemErro}">
-            <div class="mensagem erro">${mensagemErro}</div>
-          </c:if>
+                <c:if test="${not empty mensagemErro}">
+                    <div class="mensagem erro">${mensagemErro}</div>
+                </c:if>
 
-          <form action="${pageContext.request.contextPath}/relatorio" method="get" class="filtro">
-            <div class="tipo-filtro">
-              <label for="tipoFiltro">Tipo de relatório:</label>
-              <label><input type="radio" name="tipoFiltro" value="diario" ${tipoFiltro=='diario' || empty tipoFiltro
-                  ? 'checked' : '' } onclick="alternarTipoFiltro()"> Diário</label>
-              <label><input type="radio" name="tipoFiltro" value="semanal" ${tipoFiltro=='semanal' ? 'checked' : '' }
-                  onclick="alternarTipoFiltro()"> Semanal</label>
-              <label><input type="radio" name="tipoFiltro" value="mensal" ${tipoFiltro=='mensal' ? 'checked' : '' }
-                  onclick="alternarTipoFiltro()"> Mensal</label>
+                <div class="filtros">
+                    <form action="${pageContext.request.contextPath}/relatorio" method="get">
+                        <div class="filtro-row">
+                            <div class="filtro-group">
+                                <label for="tipoFiltro">Período:</label>
+                                <select id="tipoFiltro" name="tipoFiltro" onchange="togglePeriodoPersonalizado()">
+                                    <option value="diario" ${tipoFiltro == 'diario' ? 'selected' : ''}>Hoje</option>
+                                    <option value="semanal" ${tipoFiltro == 'semanal' ? 'selected' : ''}>Esta Semana</option>
+                                    <option value="mensal" ${tipoFiltro == 'mensal' ? 'selected' : ''}>Este Mês</option>
+                                    <option value="personalizado" ${tipoFiltro == 'personalizado' ? 'selected' : ''}>Período Personalizado</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-filtrar">Filtrar</button>
+                        </div>
+
+                        <div id="periodoPersonalizado" class="periodo-personalizado">
+                            <div class="filtro-group">
+                                <label for="dataInicio">De:</label>
+                                <input type="date" id="dataInicio" name="dataInicio" value="${dataInicio}" />
+                            </div>
+                            <div class="filtro-group">
+                                <label for="dataFim">Até:</label>
+                                <input type="date" id="dataFim" name="dataFim" value="${dataFim}" />
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="acoes">
+                    <button onclick="exportarCSV()" class="btn-exportar">Exportar CSV</button>
+                    <button onclick="window.print()" class="btn-imprimir">Imprimir Relatório</button>
+                </div>
+
+                <div class="periodo-info">
+                    <strong>Período: </strong>
+                    <fmt:parseDate value="${dataInicio}" pattern="yyyy-MM-dd" var="dataInicioFormatada"/>
+                    <fmt:parseDate value="${dataFim}" pattern="yyyy-MM-dd" var="dataFimFormatada"/>
+                    <fmt:formatDate value="${dataInicioFormatada}" pattern="dd/MM/yyyy"/> - 
+                    <fmt:formatDate value="${dataFimFormatada}" pattern="dd/MM/yyyy"/>
+                </div>
+
+                <div class="resumo-geral">
+                    <div class="resumo-card">
+                        <div class="resumo-valor">${totalVeiculos}</div>
+                        <div class="resumo-label">Total de Veículos</div>
+                        <div class="resumo-detalhe">
+                            ${veiculosCompletos} finalizados • ${veiculosEmAberto} em aberto
+                        </div>
+                    </div>
+
+                    <div class="resumo-card">
+                        <div class="resumo-valor">
+                            <fmt:formatNumber value="${totalValor}" type="currency" currencySymbol="R$"/>
+                        </div>
+                        <div class="resumo-label">Faturamento Total</div>
+                        <div class="resumo-detalhe">
+                            Média diária: <fmt:formatNumber value="${mediaDiaria}" type="currency" currencySymbol="R$"/>
+                        </div>
+                    </div>
+
+                    <div class="resumo-card">
+                        <div class="resumo-valor">
+                            <fmt:formatNumber value="${percentualOcupacao}" pattern="#0.0"/>%
+                        </div>
+                        <div class="resumo-label">Taxa de Ocupação</div>
+                        <div class="resumo-detalhe">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percentualOcupacao}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="resumo-card">
+                        <div class="resumo-valor">
+                            <fmt:formatNumber value="${totalVeiculos > 0 ? totalValor / totalVeiculos : 0}" type="currency" currencySymbol="R$"/>
+                        </div>
+                        <div class="resumo-label">Ticket Médio</div>
+                        <div class="resumo-detalhe">
+                            Valor médio por veículo
+                        </div>
+                    </div>
+                </div>
+
+                <c:choose>
+                    <c:when test="${empty movimentacoes}">
+                        <div class="sem-registros">
+                            <h3>Nenhum registro encontrado</h3>
+                            <p>Não há movimentações registradas para o período selecionado.</p>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <table id="tabelaMovimentacoes">
+                            <thead>
+                                <tr>
+                                    <th>Placa</th>
+                                    <th>Tipo</th>
+                                    <th>Data</th>
+                                    <th>Entrada</th>
+                                    <th>Saída</th>
+                                    <th>Valor</th>
+                                    <th>Pagamento</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach items="${movimentacoes}" var="mov">
+                                    <tr>
+                                        <td style="font-weight: bold;">${mov.placa}</td>
+                                        <td>${mov.tipoVeiculo}</td>
+                                        <td>${mov.dataEntradaFormatada}</td>
+                                        <td>${mov.horaEntradaFormatada}</td>
+                                        <td>${mov.dataSaida != null ? mov.horaSaidaFormatada : '-'}</td>
+                                        <td style="font-weight: bold; color: #30bced;">
+                                            ${mov.valorPago != null ? mov.valorPagoFormatado : '-'}
+                                        </td>
+                                        <td>${mov.formaPagamento != null ? mov.formaPagamento : '-'}</td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${mov.dataSaida != null && mov.valorPago != null}">
+                                                    <span class="status completo">Finalizado</span>
+                                                </c:when>
+                                                <c:when test="${mov.dataSaida != null && mov.valorPago == null}">
+                                                    <span class="status pendente">Saiu s/ Pagto</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="status em-aberto">Em Aberto</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </c:otherwise>
+                </c:choose>
             </div>
-
-            <div class="filtro-row">
-              <div id="filtro-diario" class="filtro-option">
-                <label for="dataDiaria">Selecione a data:</label>
-                <input type="date" id="dataDiaria" name="dataDiaria" value="${dataDiaria}">
-              </div>
-
-              <div id="filtro-semanal" class="filtro-option" style="display: none;">
-                <label for="dataSemanal">Selecione o último dia da semana:</label>
-                <input type="date" id="dataSemanal" name="dataSemanal" value="${dataSemanal}">
-              </div>
-
-              <div id="filtro-mensal" class="filtro-option" style="display: none;">
-                <label for="dataMensal">Selecione o mês e ano:</label>
-                <input type="month" id="dataMensal" name="dataMensal" value="${dataMensal}">
-              </div>
-
-              <button type="submit" class="btn-filtrar">Filtrar</button>
-            </div>
-          </form>
-
-          <button onclick="window.print()" class="btn-imprimir">Imprimir Relatório</button>
-
-          <c:if test="${not empty periodoFormatado}">
-            <div class="periodo-info">
-              ${periodoFormatado}
-            </div>
-          </c:if>
-
-          <div class="resumo">
-            <div class="resumo-item">
-              <div class="resumo-valor">${totalMovimentacoes}</div>
-              <div class="resumo-label">Veículos</div>
-            </div>
-            <div class="resumo-item">
-              <div class="resumo-valor">R$ ${totalValor}</div>
-              <div class="resumo-label">Faturamento</div>
-            </div>
-          </div>
-
-          <c:choose>
-            <c:when test="${empty movimentacoes}">
-              <div class="sem-registros">Nenhum registro encontrado para este período.</div>
-            </c:when>
-            <c:otherwise>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Placa</th>
-                    <th>Tipo</th>
-                    <th>Entrada</th>
-                    <th>Saída</th>
-                    <th>Valor</th>
-                    <th>Pagamento</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <c:forEach items="${movimentacoes}" var="mov">
-                    <tr>
-                      <td>${mov.placa}</td>
-                      <td>${mov.tipoVeiculo}</td>
-                      <td>${mov.horaEntradaFormatada}</td>
-                      <td>${mov.dataSaida != null ? mov.horaSaidaFormatada : '-'}</td>
-                      <td>${mov.valorPago != null ? mov.valorPagoFormatado : '-'}</td>
-                      <td>${mov.formaPagamento != null ? mov.formaPagamento : '-'}</td>
-                      <td>
-                        <c:choose>
-                          <c:when test="${mov.dataSaida != null}">
-                            <span class="status completo">Completo</span>
-                          </c:when>
-                          <c:otherwise>
-                            <span class="status pendente">Em Aberto</span>
-                          </c:otherwise>
-                        </c:choose>
-                      </td>
-                    </tr>
-                  </c:forEach>
-                </tbody>
-              </table>
-            </c:otherwise>
-          </c:choose>
         </div>
-      </div>
 
-      <script>
-        function alternarTipoFiltro() {
-          const tipoDiario = document.getElementById('filtro-diario');
-          const tipoSemanal = document.getElementById('filtro-semanal');
-          const tipoMensal = document.getElementById('filtro-mensal');
+        <script>
+            function togglePeriodoPersonalizado() {
+                const tipoFiltro = document.getElementById('tipoFiltro').value;
+                const periodoDiv = document.getElementById('periodoPersonalizado');
 
-          const tipoFiltroSelecionado = document.querySelector('input[name="tipoFiltro"]:checked').value;
+                if (tipoFiltro === 'personalizado') {
+                    periodoDiv.style.display = 'flex';
+                } else {
+                    periodoDiv.style.display = 'none';
+                }
+            }
 
-          tipoDiario.style.display = tipoFiltroSelecionado === 'diario' ? 'block' : 'none';
-          tipoSemanal.style.display = tipoFiltroSelecionado === 'semanal' ? 'block' : 'none';
-          tipoMensal.style.display = tipoFiltroSelecionado === 'mensal' ? 'block' : 'none';
-        }
+            function exportarCSV() {
+                const tabela = document.getElementById('tabelaMovimentacoes');
+                if (!tabela) {
+                    alert('Nenhum dado para exportar');
+                    return;
+                }
 
-        // Inicializar o estado correto dos filtros ao carregar a página
-        document.addEventListener('DOMContentLoaded', function () {
-          alternarTipoFiltro();
-        });
-      </script>
+                let csv = [];
+                const linhas = tabela.querySelectorAll('tr');
+
+                linhas.forEach(linha => {
+                    const colunas = linha.querySelectorAll('th, td');
+                    const linhaCsv = [];
+                    colunas.forEach(coluna => {
+                        linhaCsv.push('"' + coluna.textContent.replace(/"/g, '""') + '"');
+                    });
+                    csv.push(linhaCsv.join(','));
+                });
+
+                const csvContent = csv.join('\n');
+                const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+                const link = document.createElement('a');
+
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', 'relatorio_movimentacao.csv');
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+
+            // Inicializa a visibilidade do período personalizado
+            document.addEventListener('DOMContentLoaded', function () {
+                togglePeriodoPersonalizado();
+            });
+        </script>
     </body>
 
-    </html>
+</html>
