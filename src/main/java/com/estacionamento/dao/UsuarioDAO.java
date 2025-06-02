@@ -13,7 +13,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.estacionamento.model.Usuario;
 import com.estacionamento.util.DatabaseConfig;
-import org.mindrot.jbcrypt.BCrypt;   // ← importe o BCrypt
+import org.mindrot.jbcrypt.BCrypt;   // ← BCrypt Importado
 
 import java.sql.*;
 
